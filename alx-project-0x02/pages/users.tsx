@@ -1,17 +1,23 @@
 import { useState, useEffect } from 'react';
 import Head from 'next/head';
-import Header from '../components/layout/Header';
-import UserCard from '../components/common/UserCard';
-import { UserProps } from '../interfaces';
+import { GetStaticProps } from 'next';
+import Header from '@/components/layout/Header';
+import UserCard from '@/components/common/UserCard';
+import { type UserProps } from '@/interfaces';
 
-export default function Users() {
-  const [users, setUsers] = useState<UserProps[]>([]);
-  const [loading, setLoading] = useState(true);
+interface UsersPageProps {
+  initialUsers: UserProps[];
+}
+
+export default function Users({ initialUsers }: UsersPageProps) {
+  const [users, setUsers] = useState<UserProps[]>(initialUsers);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
   useEffect(() => {
     const fetchUsers = async () => {
       try {
+        setLoading(true);
         const response = await fetch('https://jsonplaceholder.typicode.com/users');
         if (!response.ok) {
           throw new Error('Failed to fetch users');
@@ -98,4 +104,24 @@ export default function Users() {
       </div>
     </>
   );
-} 
+}
+
+export const getStaticProps: GetStaticProps = async () => {
+  try {
+    const response = await fetch('https://jsonplaceholder.typicode.com/users');
+    const users = await response.json();
+    
+    return {
+      props: {
+        initialUsers: users,
+      },
+      revalidate: 60, // Revalidate every 60 seconds
+    };
+  } catch {
+    return {
+      props: {
+        initialUsers: [],
+      },
+    };
+  }
+}; 

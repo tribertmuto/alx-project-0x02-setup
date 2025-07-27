@@ -1,4 +1,4 @@
-import { PostProps } from '../../interfaces';
+import { type PostProps } from '@/interfaces';
 
 const PostCard: React.FC<PostProps> = ({ id, title, body, userId }) => {
   return (
